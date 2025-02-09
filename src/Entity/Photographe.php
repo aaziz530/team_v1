@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\MedecinRepository;
+use App\Repository\PhotographeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: MedecinRepository::class)]
-class Medecin
+#[ORM\Entity(repositoryClass: PhotographeRepository::class)]
+class Photographe
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -23,23 +23,20 @@ class Medecin
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $birthdate = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $specialite = null;
-
     #[ORM\Column]
     private ?int $phone_number = null;
 
-    #[ORM\OneToOne(inversedBy: 'medecin')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?User $user = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date_affectation = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date_fin_contrat = null;
 
-    #[ORM\ManyToOne(inversedBy: 'medecins')]
+    #[ORM\OneToOne(inversedBy: 'photographe')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $user = null;
+
+    #[ORM\ManyToOne(inversedBy: 'photographes')]
     private ?Equipe $equipe = null;
 
     public function getId(): ?int
@@ -83,18 +80,6 @@ class Medecin
         return $this;
     }
 
-    public function getSpecialite(): ?string
-    {
-        return $this->specialite;
-    }
-
-    public function setSpecialite(string $specialite): static
-    {
-        $this->specialite = $specialite;
-
-        return $this;
-    }
-
     public function getPhoneNumber(): ?int
     {
         return $this->phone_number;
@@ -107,23 +92,12 @@ class Medecin
         return $this;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
-        return $this;
-    }
-
     public function getDateAffectation(): ?\DateTimeInterface
     {
         return $this->date_affectation;
     }
 
-    public function setDateAffectation(\DateTimeInterface $date_affectation): static
+    public function setDateAffectation(?\DateTimeInterface $date_affectation): static
     {
         $this->date_affectation = $date_affectation;
 
@@ -139,6 +113,17 @@ class Medecin
     {
         $this->date_fin_contrat = $date_fin_contrat;
 
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
         return $this;
     }
 

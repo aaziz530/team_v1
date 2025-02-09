@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\MedecinRepository;
+use App\Repository\PresidentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: MedecinRepository::class)]
-class Medecin
+#[ORM\Entity(repositoryClass: PresidentRepository::class)]
+class President
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -23,15 +23,8 @@ class Medecin
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $birthdate = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $specialite = null;
-
     #[ORM\Column]
     private ?int $phone_number = null;
-
-    #[ORM\OneToOne(inversedBy: 'medecin')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?User $user = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date_affectation = null;
@@ -39,7 +32,11 @@ class Medecin
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date_fin_contrat = null;
 
-    #[ORM\ManyToOne(inversedBy: 'medecins')]
+    #[ORM\OneToOne(inversedBy: 'president')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $user = null;
+
+    #[ORM\OneToOne(mappedBy: 'president', cascade: ['persist', 'remove'])]
     private ?Equipe $equipe = null;
 
     public function getId(): ?int
@@ -83,18 +80,6 @@ class Medecin
         return $this;
     }
 
-    public function getSpecialite(): ?string
-    {
-        return $this->specialite;
-    }
-
-    public function setSpecialite(string $specialite): static
-    {
-        $this->specialite = $specialite;
-
-        return $this;
-    }
-
     public function getPhoneNumber(): ?int
     {
         return $this->phone_number;
@@ -104,17 +89,6 @@ class Medecin
     {
         $this->phone_number = $phone_number;
 
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
         return $this;
     }
 
@@ -142,6 +116,17 @@ class Medecin
         return $this;
     }
 
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+        return $this;
+    }
+
     public function getEquipe(): ?Equipe
     {
         return $this->equipe;
@@ -149,6 +134,16 @@ class Medecin
 
     public function setEquipe(?Equipe $equipe): static
     {
+        // unset the owning side of the relation if necessary
+        if ($equipe === null && $this->equipe !== null) {
+            $this->equipe->setPresident(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($equipe !== null && $equipe->getPresident() !== $this) {
+            $equipe->setPresident($this);
+        }
+
         $this->equipe = $equipe;
 
         return $this;
